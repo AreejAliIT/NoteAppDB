@@ -1,13 +1,15 @@
 package com.example.noteappdb
 
+import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class RVA(private val videos:Array<Array<String>>) :
+class RVA(context: Context ,val notes:ArrayList<NoteModel>) :
     RecyclerView.Adapter<RVA.ViewHolder>(){
 
     class ViewHolder(itemView : View): RecyclerView.ViewHolder(itemView)
@@ -23,14 +25,12 @@ class RVA(private val videos:Array<Array<String>>) :
         )
     }
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        var videoName = videos[position][0]
-        var videoId =   videos[position][1]
-        var thumbnail = videos[position][2]
-        Log.d("RV","the thumbnail is --> $thumbnail")
+        var note = notes[position]
         holder.itemView.apply {
             // for binding
-
+            var tv = findViewById<TextView>(R.id.tvNote)
+            tv.text = note.noteText
         }
     }
-    override fun getItemCount() = videos.size
+    override fun getItemCount() = notes.size
 }

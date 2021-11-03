@@ -55,4 +55,20 @@ class DBH(context: Context): SQLiteOpenHelper(context, "MyDB2", null, 1) {
         }
         return noteList
     }
+    fun update(note: NoteModel): Int {
+        val db = this.writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put("Note", note.noteText)
+        val success = db.update("Note_Table2", contentValues, "ID = ${note.id}", null)
+        db.close()
+        return success
+    }
+    fun deleteNote(note: NoteModel): Int{
+        val db = this.writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put("ID", note.id)
+        val success = db.delete("Note_Table2", "ID = ${note.id}", null)
+        db.close()
+        return success
+    }
 }

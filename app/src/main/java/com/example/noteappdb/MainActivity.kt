@@ -42,6 +42,36 @@ class MainActivity : AppCompatActivity() {
     private fun getItemsList(): ArrayList<NoteModel> {
         return dbhr.retrieve()
     }
+    private fun updateNote(id : Int, newNote: String) {
+        // update note in db
+        dbhr.update(NoteModel( id, newNote))
+        etNote.text.clear()
+        rv.adapter = RVA(this,getItemsList())
+        rv.layoutManager = LinearLayoutManager(this)
+    }
+    fun deleteNote(noteID: Int){
+        dbhr.deleteNote(NoteModel(noteID, ""))
+        rv.adapter = RVA(this,getItemsList())
+        rv.layoutManager = LinearLayoutManager(this)
+    }
+    fun raiseDialog(id: Int){
+        val dialogBuilder = androidx.appcompat.app.AlertDialog.Builder(this)
+        val updatedNote = EditText(this)
+        updatedNote.hint = "Enter new text"
+        dialogBuilder
+            .setCancelable(false)
+            .setPositiveButton("Save", android.content.DialogInterface.OnClickListener {
+                    _, _ -> updateNote(id, updatedNote.text.toString())
+            })
+            .setNegativeButton("Cancel", android.content.DialogInterface.OnClickListener {
+                    dialog, _ -> dialog.cancel()
+            })
+        val alert = dialogBuilder.create()
+        alert.setTitle("Update Note")
+        alert.setView(updatedNote)
+        alert.show()
+    }
+
 
 }
 data class NoteModel(val id: Int, val noteText: String)

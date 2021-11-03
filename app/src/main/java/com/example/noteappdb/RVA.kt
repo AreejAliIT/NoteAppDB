@@ -9,12 +9,10 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class RVA(context: Context ,val notes:ArrayList<NoteModel>) :
+class RVA(val activity: MainActivity,val notes:ArrayList<NoteModel>) :
     RecyclerView.Adapter<RVA.ViewHolder>(){
 
     class ViewHolder(itemView : View): RecyclerView.ViewHolder(itemView)
-    // for binding
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
             LayoutInflater.from(parent.context).inflate(
@@ -29,7 +27,16 @@ class RVA(context: Context ,val notes:ArrayList<NoteModel>) :
         holder.itemView.apply {
             // for binding
             var tv = findViewById<TextView>(R.id.tvNote)
+            var btnEdit = findViewById<TextView>(R.id.btnEdit)
+            var btnDel = findViewById<TextView>(R.id.btnDel)
+            //set values
             tv.text = note.noteText
+            btnEdit.setOnClickListener {
+                activity.raiseDialog(note.id)
+            }
+            btnDel.setOnClickListener {
+                activity.deleteNote(note.id)
+            }
         }
     }
     override fun getItemCount() = notes.size

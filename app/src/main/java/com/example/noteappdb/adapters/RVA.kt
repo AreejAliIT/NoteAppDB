@@ -10,10 +10,10 @@ import com.example.noteappdb.NoteModel
 import com.example.noteappdb.Notes
 import com.example.noteappdb.R
 
-class RVA(val activity: MainActivity, val notes: List<Notes> ) :
+class RVA(val activity: MainActivity ) :
     RecyclerView.Adapter<RVA.ViewHolder>(){
 
-    private var note = emptyList<Notes>()
+    private var notes = emptyList<Notes>()
 
     class ViewHolder(itemView : View): RecyclerView.ViewHolder(itemView)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -35,13 +35,13 @@ class RVA(val activity: MainActivity, val notes: List<Notes> ) :
             //set values
             tv.text = note.noteText
             btnEdit.setOnClickListener { activity.raiseDialog(note.id) }
-            btnDel.setOnClickListener { activity.deleteNote(note.id) }
+            btnDel.setOnClickListener { activity.myViewModel.deleteNote(note.id) } // DELETE data by mainActivity and view model
         }
     }
     override fun getItemCount() = notes.size
 
     fun update(note: List<Notes>){
-        this.note = note
+        this.notes = note
         notifyDataSetChanged()
     }
 }

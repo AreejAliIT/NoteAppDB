@@ -7,53 +7,97 @@ import android.widget.Button
 import android.widget.EditText
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.noteappdb.adapters.RVA
+import com.example.noteappdb.database.NoteRepo
+import com.example.noteappdb.database.Note_DB
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+
+//Data class  Model
+data class NoteModel(val id: Int, val noteText: String)
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var dbhr: DBH
+    //private val myViewModel by lazy { ViewModelProvider(this).get( ViewModel::class.java) }
+    private val dao by lazy { Note_DB.getDatabase(this).noteDao() }
+    private val repo by lazy { NoteRepo(dao) }
+
     private lateinit var etNote : EditText
     private lateinit var rv: RecyclerView
+    private lateinit var noteList: List<Notes>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-         dbhr = DBH(this)
          etNote = findViewById(R.id.etNote)
          var btn = findViewById<Button>(R.id.btn)
-
-        //set RV
+        //init list
+        noteList = listOf()
+        // save btn clicked
+        btn.setOnClickListener{
+            var noteToSave = etNote.text.toString()
+            postNote(noteToSave)
+            etNote.text.clear()
+            etNote.clearFocus()
+            updateRV()
+        }
+        // call get fun
+        getItemsList()
+        //set RV and update
         rv = findViewById(R.id.rv)
-        rv.adapter = RVA(this , getItemsList())
-        rv.layoutManager = LinearLayoutManager(this)
+        updateRV()
 
-        btn.setOnClickListener{postNote()}
+//        myViewModel.get.observe(this, {
+//            varbeleiwant -> etNote.text = varbeleiwant.toString
+//        })
     }
 
-    private fun postNote() {
+    private fun updateRV(){
+        rv.adapter = RVA(this, noteList)
+        rv.layoutManager = LinearLayoutManager(this)
+    }
+
+
+    private fun postNote(noteToSave :String) {
         // add note and save it in db
-        var noteToSave = etNote.text.toString()
-        dbhr.save(NoteModel(0,noteToSave))
-        etNote.text.clear()
-        rv.adapter = RVA(this,getItemsList())
-        rv.layoutManager = LinearLayoutManager(this)
+//        dbhr.save(NoteModel(0,noteToSave))
+        CoroutineScope(IO).launch { repo.addNote(Notes(0,noteToSave))}
     }
 
-    private fun getItemsList(): ArrayList<NoteModel> {
-        return dbhr.retrieve()
+    private fun getItemsList(){
+////        dbhr.retrieve()
+//        var list = listOf<Notes>()
+//        CoroutineScope(IO).launch {
+//            list = dao.getAllNote()
+//        }
+//        updateRV()
+        CoroutineScope(IO).launch {
+            val data = async {
+                repo.getNotes
+            }.await()
+            if(data.isNotEmpty()){
+                noteList = data
+                updateRV()
+            }else{
+                Log.e("MainActivity", "Unable to get data", )
+            }
+        }
     }
     private fun updateNote(id : Int, newNote: String) {
         // update note in db
-        dbhr.update(NoteModel( id, newNote))
+        CoroutineScope(IO).launch { repo.updateNote(Notes(id , newNote))}
         etNote.text.clear()
-        rv.adapter = RVA(this,getItemsList())
-        rv.layoutManager = LinearLayoutManager(this)
+        updateRV()
     }
     fun deleteNote(noteID: Int){
-        dbhr.deleteNote(NoteModel(noteID, ""))
-        rv.adapter = RVA(this,getItemsList())
-        rv.layoutManager = LinearLayoutManager(this)
+//        dbhr.deleteNote(NoteModel(noteID, ""))
+        CoroutineScope(IO).launch { repo.deleteNote(Notes(noteID, ""))}
+        updateRV()
     }
+
     fun raiseDialog(id: Int){
         val dialogBuilder = androidx.appcompat.app.AlertDialog.Builder(this)
         val updatedNote = EditText(this)
@@ -61,7 +105,9 @@ class MainActivity : AppCompatActivity() {
         dialogBuilder
             .setCancelable(false)
             .setPositiveButton("Save", android.content.DialogInterface.OnClickListener {
-                    _, _ -> updateNote(id, updatedNote.text.toString())
+                    _, _ -> run { updateNote(id, updatedNote.text.toString())
+                                  updateRV()
+                                }
             })
             .setNegativeButton("Cancel", android.content.DialogInterface.OnClickListener {
                     dialog, _ -> dialog.cancel()
@@ -71,7 +117,4 @@ class MainActivity : AppCompatActivity() {
         alert.setView(updatedNote)
         alert.show()
     }
-
-
 }
-data class NoteModel(val id: Int, val noteText: String)

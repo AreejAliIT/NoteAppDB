@@ -1,16 +1,19 @@
-package com.example.noteappdb
+package com.example.noteappdb.adapters
 
-import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.noteappdb.MainActivity
+import com.example.noteappdb.NoteModel
+import com.example.noteappdb.Notes
+import com.example.noteappdb.R
 
-class RVA(val activity: MainActivity,val notes:ArrayList<NoteModel>) :
+class RVA(val activity: MainActivity, val notes: List<Notes> ) :
     RecyclerView.Adapter<RVA.ViewHolder>(){
+
+    private var note = emptyList<Notes>()
 
     class ViewHolder(itemView : View): RecyclerView.ViewHolder(itemView)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -31,13 +34,16 @@ class RVA(val activity: MainActivity,val notes:ArrayList<NoteModel>) :
             var btnDel = findViewById<TextView>(R.id.btnDel)
             //set values
             tv.text = note.noteText
-            btnEdit.setOnClickListener {
-                activity.raiseDialog(note.id)
-            }
-            btnDel.setOnClickListener {
-                activity.deleteNote(note.id)
-            }
+            btnEdit.setOnClickListener { activity.raiseDialog(note.id) }
+            btnDel.setOnClickListener { activity.deleteNote(note.id) }
         }
     }
     override fun getItemCount() = notes.size
+
+    fun update(note: List<Notes>){
+        this.note = note
+        notifyDataSetChanged()
+    }
 }
+
+

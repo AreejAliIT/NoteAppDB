@@ -1,16 +1,18 @@
 package com.example.noteappdb.adapters
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.navigation.Navigation.findNavController
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import com.example.noteappdb.MainActivity
-import com.example.noteappdb.NoteModel
-import com.example.noteappdb.Notes
-import com.example.noteappdb.R
+import com.example.noteappdb.*
 
-class RVA(val activity: MainActivity ) :
+class RVA(val activity: FragmentHome) :
     RecyclerView.Adapter<RVA.ViewHolder>(){
 
     private var notes = emptyList<Notes>()
@@ -34,8 +36,15 @@ class RVA(val activity: MainActivity ) :
             var btnDel = findViewById<TextView>(R.id.btnDel)
             //set values
             tv.text = note.noteText
-            btnEdit.setOnClickListener { activity.raiseDialog(note.id) }
-            btnDel.setOnClickListener { activity.myViewModel.deleteNote(note.id) } // DELETE data by mainActivity and view model
+
+            btnEdit.setOnClickListener {
+                with(activity.sharedPreferences.edit()) {
+                    putString("NoteId", note.id.toString())
+                    apply()
+                }
+               activity.findNavController().navigate(R.id.action_fragmentHome_to_fragmentNew)
+            }
+            btnDel.setOnClickListener { activity.myViewModel.deleteNote(note.id)} // DELETE data by mainActivity and view model
         }
     }
     override fun getItemCount() = notes.size

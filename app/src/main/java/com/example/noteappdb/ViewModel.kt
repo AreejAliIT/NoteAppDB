@@ -30,9 +30,9 @@ class ViewModel(application: Application): AndroidViewModel(application) {
     fun getItemsList() : LiveData<List<Notes>>{
      return noteList
     }
-    fun updateNote(id : Int, newNote: String) {
-        CoroutineScope(Dispatchers.IO).launch { repo.updateNote(Notes(id , newNote))}
-    }
+//    fun updateNote(id : Int, newNote: String) {
+//        CoroutineScope(Dispatchers.IO).launch { repo.updateNote(Notes(id , newNote))}
+//    }
     fun deleteNote(noteID: Int){
         CoroutineScope(Dispatchers.IO).launch { repo.deleteNote(Notes(noteID, ""))}
     }
